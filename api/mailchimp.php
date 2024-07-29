@@ -24,9 +24,6 @@ $client->setConfig([
     'server' => 'us14',
 ]);
 
-// $_POST['email'] = 'andru@tinymighty.com';
-// $_POST['firstName'] = 'Andru';
-// $_POST['lastName'] = 'Vallance';
 if (!count($_POST) || !$_POST['email'] || !$_POST['firstName'] || !$_POST['lastName']) {
   header('HTTP/1.1 400 Bad Request');
   die();
@@ -39,7 +36,7 @@ $response = $client->lists->setListMember(MAILCHIMP_LIST_ID, $_POST['email'], [
         "FNAME" => $_POST['firstName'],
         "LNAME" => $_POST['lastName'],
     ],
-    "status" => "subscribed", 
+    "status" => $_POST["status"]
 ]);
 
 header("Content-Type: application/json");
