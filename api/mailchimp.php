@@ -36,7 +36,7 @@ $response = $client->lists->setListMember(MAILCHIMP_LIST_ID, $_POST['email'], [
         "FNAME" => $_POST['firstName'],
         "LNAME" => $_POST['lastName'],
     ],
-    "status" => $_POST["status"]
+    "status" => isset($_POST["status"]) ? $_POST["status"] : "subscribed",
 ]);
 
 header("Content-Type: application/json");

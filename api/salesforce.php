@@ -53,7 +53,7 @@ define('SF_SECRET', $_ENV['SF_SECRET']);
 // ];
 if (!count($_POST)) {
   header('HTTP/1.1 400 Bad Request');
-  die('No data');
+  die('Post fields empty');
 }
 
 $lastSFHeaderCode = 501;
@@ -91,7 +91,7 @@ if (!$token) {
 
 // check if lead already exists
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, SF_URL."/services/data/v61.0/query/?q=SELECT+Id+FROM+Lead%20WHERE%20email='andru@tinymighty.com'");
+curl_setopt($ch, CURLOPT_URL, SF_URL."/services/data/v61.0/query/?q=SELECT+Id+FROM+Lead%20WHERE%20email='".trim($_POST["email"])."'");
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Authorization: Bearer ' . $token
 ]);
@@ -101,8 +101,7 @@ $response = curl_exec($ch);
 $lastSFHeaderCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 $lead = json_decode($response, true);
-// print_r($lead);
-// die;
+
 if (!$lead) {
   http_response_code($lastSFHeaderCode);
   die('Error querying lead');
