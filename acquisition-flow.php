@@ -12,8 +12,8 @@ function activate_acquisition_flow() {
 function deactivate_acquisition_flow() {
 }
 function acquisition_flow_enqueue_scripts() {
-	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-BMNCran_.js', array(), '1.0.0', true);
-	wp_enqueue_style( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-v4XlVr9T.css');
+	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-DogSPZ-X.js', array(), '1.0.0', true);
+	wp_enqueue_style( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-CtwxWV25.css');
 
 }
 add_action('wp_enqueue_scripts', 'acquisition_flow_enqueue_scripts');
