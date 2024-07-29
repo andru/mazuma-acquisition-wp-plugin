@@ -9,4 +9,4 @@ Author URI: http://tinymighty.com
 License: N/A
 */
 
-require_once("./acquisition-flow.php");
+require_once(dirname(__FILE__)."/acquisition-flow.php");
