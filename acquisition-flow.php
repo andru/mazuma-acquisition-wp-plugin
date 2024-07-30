@@ -12,7 +12,7 @@ function activate_acquisition_flow() {
 function deactivate_acquisition_flow() {
 }
 function acquisition_flow_enqueue_scripts() {
-	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-v1SLn5tl.js', array(), '1.0.0', true);
+	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-BxIdox_e.js', array(), '1.0.0', true);
 	wp_enqueue_style( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-CtwxWV25.css');
 
 }
@@ -27,6 +27,7 @@ function render_acquisition_flow( $page_template )
 {
     if ( is_singular() && is_page( 'get-a-quote' ) ) {
         $content = "<div id=\"mazuma-flow-root\"></div>";
+				// $content = "<iframe src=\"/wp-content/plugins/acquisition-flow/dist/index.html\" style=\"width: 100%; height: 200vh; border: none;\"></iframe>";
     }
     return $content;
 }
