@@ -26,9 +26,8 @@ add_filter( 'the_content', 'render_acquisition_flow' );
 function render_acquisition_flow( $page_template )
 {
     $options = get_option('aqfl_plugin_options');
-    $page_name = isset($options['pagename']) && $options['pagename'] !== '' ? $options['pagename'] : 'get-a-quote';
-    $bookcallurl = isset($options['bookcallurl']) && $options['bookcallurl'] !== '' ? $options['bookcallurl'] : 'https://calendly.com/mazumamoney';
-    if ( is_singular() && is_page( $options['pagename'] ) ) {
+    $page_name = $options['pagename'];
+    if ( isset($page_name) && $page_name!=='' && is_singular() && is_page( $options['pagename'] ) ) {
         ?>
         <script type="text/javascript">
             var COMPANIESHOUSE_API_URL='/wp-content/plugins/acquisition-flow/api/companieshouse.php';
@@ -78,7 +77,7 @@ function acquisition_flow_register_settings() {
 
     add_settings_section( 'general', 'General Settings', '', 'aqfl_plugin' );
     add_settings_field( 'aqfl_plugin_setting_pagename', 'URL Path / Page Name', 'aqfl_plugin_setting_pagename', 'aqfl_plugin', 'general' );
-    add_settings_field( 'aqfl_plugin_setting_bookcallurl', 'URL Path / Page Name', 'aqfl_plugin_setting_bookcallurl', 'aqfl_plugin', 'general' );
+    add_settings_field( 'aqfl_plugin_setting_bookcallurl', 'Book a call URL', 'aqfl_plugin_setting_bookcallurl', 'aqfl_plugin', 'general' );
 
     add_settings_section( 'quote_rates', 'Quote Calculation Monthly Base Rates', '', 'aqfl_plugin' );
     add_settings_field( 'aqfl_plugin_setting_base_st', 'Sole Trader Base Rate', 'aqfl_plugin_setting_st_base', 'aqfl_plugin', 'quote_rates' );
@@ -107,11 +106,11 @@ function aqfl_plugin_section_text() {
 
 function aqfl_plugin_setting_pagename() {
     $options = get_option( 'aqfl_plugin_options' );
-    echo "<input id='aqfl_plugin_setting_pagename' name='aqfl_plugin_options[pagename]' type='text' value='" . esc_attr( $options['pagename'] ) . "' />";
+    echo "<input style='min-width:50%' id='aqfl_plugin_setting_pagename' name='aqfl_plugin_options[pagename]' type='text' value='" . esc_attr( $options['pagename'] ) . "' />";
 }
 function aqfl_plugin_setting_bookcallurl() {
     $options = get_option( 'aqfl_plugin_options' );
-    echo "<input id='aqfl_plugin_setting_bookcallurl' name='aqfl_plugin_options[bookcallurl]' type='text' value='" . esc_attr( $options['bookcallurl'] ) . "' />";
+    echo "<input style='min-width:50%' id='aqfl_plugin_setting_bookcallurl' name='aqfl_plugin_options[bookcallurl]' type='text' value='" . esc_attr( $options['bookcallurl'] ) . "' />";
 }
 
 
