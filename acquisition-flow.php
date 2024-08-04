@@ -33,7 +33,7 @@ function render_acquisition_flow( $page_template )
             var COMPANIESHOUSE_API_URL='/wp-content/plugins/acquisition-flow/api/companieshouse.php';
             var SALESFORCE_API_URL='/wp-content/plugins/acquisition-flow/api/salesforce.php';
             var MAILCHIMP_API_URL='/wp-content/plugins/acquisition-flow/api/mailchimp.php';
-            var CALENDLY_URL=$bookcallurl;
+            var CALENDLY_URL="<?php echo $options['bookcallurl'] ?>";
 
             var WPAQFL_BASE_SOLE = "<?php echo $options['quote_st_base'] ?>";
             var WPAQFL_BASE_PARTNERSHIP = "<?php echo $options['quote_pt_base'] ?>";
