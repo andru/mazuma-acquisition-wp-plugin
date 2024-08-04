@@ -25,10 +25,17 @@ register_deactivation_hook( __FILE__, 'deactivate_acquisition_flow' );
 add_filter( 'the_content', 'render_acquisition_flow' );
 function render_acquisition_flow( $page_template )
 {
-    if ( is_singular() && is_page( 'get-a-quote' ) ) {
-        $options = get_option('aqfl_plugin_options');
+    $options = get_option('aqfl_plugin_options');
+    $page_name = isset($options['pagename']) && $options['pagename'] !== '' ? $options['pagename'] : 'get-a-quote';
+    $bookcallurl = isset($options['bookcallurl']) && $options['bookcallurl'] !== '' ? $options['bookcallurl'] : 'https://calendly.com/mazumamoney';
+    if ( is_singular() && is_page( $options['pagename'] ) ) {
         ?>
         <script type="text/javascript">
+            var COMPANIESHOUSE_API_URL='/wp-content/plugins/acquisition-flow/api/companieshouse.php';
+            var SALESFORCE_API_URL='/wp-content/plugins/acquisition-flow/api/salesforce.php';
+            var MAILCHIMP_API_URL='/wp-content/plugins/acquisition-flow/api/mailchimp.php';
+            var CALENDLY_URL=$bookcallurl;
+
             var WPAQFL_BASE_SOLE = "<?php echo $options['quote_st_base'] ?>";
             var WPAQFL_BASE_PARTNERSHIP = "<?php echo $options['quote_pt_base'] ?>";
             var WPAQFL_BASE_LTD = "<?php echo $options['quote_ltd_base'] ?>";
@@ -69,6 +76,10 @@ function acquisition_flow_render_plugin_settings_page() {
 function acquisition_flow_register_settings() {
     register_setting( 'aqfl_plugin_options', 'aqfl_plugin_options', 'aqfl_plugin_options_validate' );
 
+    add_settings_section( 'general', 'General Settings', '', 'aqfl_plugin' );
+    add_settings_field( 'aqfl_plugin_setting_pagename', 'URL Path / Page Name', 'aqfl_plugin_setting_pagename', 'aqfl_plugin', 'general' );
+    add_settings_field( 'aqfl_plugin_setting_bookcallurl', 'URL Path / Page Name', 'aqfl_plugin_setting_bookcallurl', 'aqfl_plugin', 'general' );
+
     add_settings_section( 'quote_rates', 'Quote Calculation Monthly Base Rates', '', 'aqfl_plugin' );
     add_settings_field( 'aqfl_plugin_setting_base_st', 'Sole Trader Base Rate', 'aqfl_plugin_setting_st_base', 'aqfl_plugin', 'quote_rates' );
     add_settings_field( 'aqfl_plugin_setting_base_pt', 'Partnership Base Rate', 'aqfl_plugin_setting_pt_base', 'aqfl_plugin', 'quote_rates' );
@@ -92,6 +103,15 @@ add_action( 'admin_init', 'acquisition_flow_register_settings' );
 
 function aqfl_plugin_section_text() {
     echo '<p>Define the values used to calculate the quote</p>';
+}
+
+function aqfl_plugin_setting_pagename() {
+    $options = get_option( 'aqfl_plugin_options' );
+    echo "<input id='aqfl_plugin_setting_pagename' name='aqfl_plugin_options[pagename]' type='text' value='" . esc_attr( $options['pagename'] ) . "' />";
+}
+function aqfl_plugin_setting_bookcallurl() {
+    $options = get_option( 'aqfl_plugin_options' );
+    echo "<input id='aqfl_plugin_setting_bookcallurl' name='aqfl_plugin_options[bookcallurl]' type='text' value='" . esc_attr( $options['bookcallurl'] ) . "' />";
 }
 
 
