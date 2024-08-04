@@ -29,15 +29,37 @@ if (!count($_POST) || !$_POST['email'] || !$_POST['firstName'] || !$_POST['lastN
   die();
 }
 
+$subscriberHash = md5(strtolower($_POST['email']));
+
 // setListMember(list_id, subscriber_hash, body)
-$response = $client->lists->setListMember(MAILCHIMP_LIST_ID, $_POST['email'], [
+$response = $client->lists->setListMember(MAILCHIMP_LIST_ID, $subscriberHash, [
     "email_address" => $_POST['email'],
     "merge_fields" => [
         "FNAME" => $_POST['firstName'],
         "LNAME" => $_POST['lastName'],
+        "QUOT_MONTH" => $_POST['quoteMonthly'],
+        "QUOT_CATCH" => $_POST['quoteCatchup'],
+        "QUOT_SETUP" => $_POST['quoteSetup'],
     ],
-    "status" => isset($_POST["status"]) ? $_POST["status"] : "subscribed",
+    "status" => "subscribed",
+    // "tags" => [
+    //   ["name" => "quote-flow-quoted", "status" => $_POST["flowProgress"] === "quoted" || $_POST["flowProgress"] === "completed" ? "active" : "inactive"],
+    //   ["name" => "quote-flow-completed", "status" => $_POST["flowProgress"] === "completed" ? "active" : "inactive"],
+    //   ["name" => "quoteonly", "status" => $_POST['marketingOptIn'] === "true" ? "inactive" : "active"],
+    // ],
 ]);
 
+$tags = [
+  ["name" => "quote-flow-quoted", "status" => ($_POST["flowProgress"] === "quoted" || $_POST["flowProgress"] === "completed") ? "active" : "inactive"],
+  ["name" => "quote-flow-completed", "status" => $_POST["flowProgress"] === "completed" ? "active" : "inactive"],
+  ["name" => "quoteonly", "status" => $_POST['marketingOptIn'] === "true" ? "inactive" : "active"],
+];
+$response2 = $client->lists->updateListMemberTags(MAILCHIMP_LIST_ID, $subscriberHash, [
+
+    "tags" => $tags
+
+]);
+
+
 header("Content-Type: application/json");
-echo json_encode($response);
+echo json_encode([$response, $tags]);
