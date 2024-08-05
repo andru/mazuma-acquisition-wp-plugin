@@ -12,7 +12,7 @@ function activate_acquisition_flow() {
 function deactivate_acquisition_flow() {
 }
 function acquisition_flow_enqueue_scripts() {
-	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-BrpuBSZi.js', array(), '1.0.0', true);
+	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-BCBHmocb.js', array(), '1.0.0', true);
 	wp_enqueue_style( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-CtwxWV25.css');
 
 }
