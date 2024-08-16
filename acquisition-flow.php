@@ -12,7 +12,7 @@ function activate_acquisition_flow() {
 function deactivate_acquisition_flow() {
 }
 function acquisition_flow_enqueue_scripts() {
-	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-BCBHmocb.js', array(), '1.0.0', true);
+	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-bArnLs6D.js', array(), '1.0.0', true);
 	wp_enqueue_style( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-CtwxWV25.css');
 
 }
@@ -43,7 +43,6 @@ function render_acquisition_flow( $page_template )
             var WPAQFL_MINPAYROLL = "<?php echo $options['quote_minpayroll'] ?>";
             var WPAQFL_VAT = "<?php echo $options['quote_fees_vat'] ?>";
             var WPAQFL_SETUP = "<?php echo $options['quote_fees_setup'] ?>";
-            var WPAQFL_CATCHUP = "<?php echo $options['quote_fees_catchup'] ?>";
         </script>
         <div id="mazuma-flow-root"></div>
 
@@ -94,8 +93,6 @@ function acquisition_flow_register_settings() {
 
     add_settings_section( 'quote_onetime_fees', 'New Client Fees', '', 'aqfl_plugin' );
     add_settings_field( 'aqfl_plugin_setting_setup', 'Setup fee', 'aqfl_plugin_setting_setup', 'aqfl_plugin', 'quote_onetime_fees' );
-    add_settings_field( 'aqfl_plugin_setting_catchup', 'Catchup  fee', 'aqfl_plugin_setting_catchup', 'aqfl_plugin', 'quote_onetime_fees' );
-
 }
 add_action( 'admin_init', 'acquisition_flow_register_settings' );
 
@@ -149,8 +146,4 @@ function aqfl_plugin_setting_vat() {
 function aqfl_plugin_setting_setup() {
     $options = get_option( 'aqfl_plugin_options' );
     echo "<input id='aqfl_plugin_setting_setup' name='aqfl_plugin_options[quote_fees_setup]' type='text' value='" . esc_attr( $options['quote_fees_setup'] ) . "' />";
-}
-function aqfl_plugin_setting_catchup() {
-    $options = get_option( 'aqfl_plugin_options' );
-    echo "<input id='aqfl_plugin_setting_catchup' name='aqfl_plugin_options[quote_fees_catchup]' type='text' value='" . esc_attr( $options['quote_fees_catchup'] ) . "' />";
 }
