@@ -15,13 +15,16 @@ if ($_ENV['__DEV']) {
 
 define('MAILCHIMP_API_KEY', $_ENV['MAILCHIMP_API_KEY']);
 define('MAILCHIMP_LIST_ID', $_ENV['MAILCHIMP_LIST_ID']);
+define('MAILCHIMP_SERVER', $_ENV['MAILCHIMP_SERVER']);
+
 
 // API DOCS https://mailchimp.com/developer/marketing/api/list-members/
-
+try {
+  
 $client = new MailchimpMarketing\ApiClient();
 $client->setConfig([
     'apiKey' => MAILCHIMP_API_KEY,
-    'server' => 'us14',
+    'server' => MAILCHIMP_SERVER,
 ]);
 
 if (!count($_POST) || !$_POST['email'] || !$_POST['firstName'] || !$_POST['lastName']) {
@@ -31,6 +34,8 @@ if (!count($_POST) || !$_POST['email'] || !$_POST['firstName'] || !$_POST['lastN
 
 $subscriberHash = md5(strtolower($_POST['email']));
 
+
+   
 // setListMember(list_id, subscriber_hash, body)
 $response = $client->lists->setListMember(MAILCHIMP_LIST_ID, $subscriberHash, [
     "email_address" => $_POST['email'],
@@ -55,11 +60,14 @@ $tags = [
   ["name" => "quoteonly", "status" => $_POST['marketingOptIn'] === "true" ? "inactive" : "active"],
 ];
 $response2 = $client->lists->updateListMemberTags(MAILCHIMP_LIST_ID, $subscriberHash, [
-
     "tags" => $tags
-
 ]);
 
 
 header("Content-Type: application/json");
 echo json_encode([$response, $tags]);
+
+} catch ( GuzzleHttp\Exception\ClientException $e) {
+  header('HTTP/1.1 500 Internal Server Error');
+  echo $e->getResponse()->getBody(true);
+}

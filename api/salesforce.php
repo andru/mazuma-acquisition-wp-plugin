@@ -80,11 +80,13 @@ if ($json_resp) {
     $token = $json_resp['access_token'];
 } else {
     echo 'Bad response';
+    print_r($json_resp);
     exit;
 }
 
 if (!$token) {  
     echo 'Bad token';
+    print_r($json_resp);
     exit;
 }
 

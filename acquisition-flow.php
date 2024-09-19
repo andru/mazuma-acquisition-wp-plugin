@@ -12,7 +12,7 @@ function activate_acquisition_flow() {
 function deactivate_acquisition_flow() {
 }
 function acquisition_flow_enqueue_scripts() {
-	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-bArnLs6D.js', array(), '1.0.0', true);
+	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-DEXKmxIy.js', array(), '1.2.4', true);
 	wp_enqueue_style( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-CtwxWV25.css');
 
 }
@@ -39,15 +39,12 @@ function render_acquisition_flow( $page_template )
             var WPAQFL_BASE_PARTNERSHIP = "<?php echo $options['quote_pt_base'] ?>";
             var WPAQFL_BASE_LTD = "<?php echo $options['quote_ltd_base'] ?>";
             var WPAQFL_BASE_LLP = "<?php echo $options['quote_llp_base'] ?>";
-            var WPAQFL_PERPAYSLIP = "<?php echo $options['quote_perpayslip'] ?>";
-            var WPAQFL_MINPAYROLL = "<?php echo $options['quote_minpayroll'] ?>";
+            var WPAQFL_PAYROLL_MATRIX = `<?php echo $options['quote_payrollmatrix'] ?>`;
             var WPAQFL_VAT = "<?php echo $options['quote_fees_vat'] ?>";
             var WPAQFL_SETUP = "<?php echo $options['quote_fees_setup'] ?>";
         </script>
         <div id="mazuma-flow-root"></div>
-
         <?php
-				// $content = "<iframe src=\"/wp-content/plugins/acquisition-flow/dist/index.html\" style=\"width: 100%; height: 200vh; border: none;\"></iframe>";
     }
 }
 
@@ -85,8 +82,7 @@ function acquisition_flow_register_settings() {
     add_settings_field( 'aqfl_plugin_setting_base_llp', 'LLP Base Rate', 'aqfl_plugin_setting_llp_base', 'aqfl_plugin', 'quote_rates' );
 
     add_settings_section( 'quote_payroll', 'Payroll', '', 'aqfl_plugin' );
-    add_settings_field( 'aqfl_plugin_setting_perpayslip', 'Minimum payroll charge', 'aqfl_plugin_setting_perpayslip', 'aqfl_plugin', 'quote_payroll' );
-    add_settings_field( 'aqfl_plugin_setting_minpayroll', 'Fee per payslip', 'aqfl_plugin_setting_minpayroll', 'aqfl_plugin', 'quote_payroll' );
+    add_settings_field( 'aqfl_plugin_setting_payroll_matrix', 'Payroll Fee Matrix', 'aqfl_plugin_setting_payroll_matrix', 'aqfl_plugin', 'quote_payroll' );
 
     add_settings_section( 'quote_fees', 'Additional Monthly Fees', '', 'aqfl_plugin' );
     add_settings_field( 'aqfl_plugin_setting_vat', 'VAT registered', 'aqfl_plugin_setting_vat', 'aqfl_plugin', 'quote_fees' );
@@ -128,13 +124,10 @@ function aqfl_plugin_setting_llp_base() {
     echo "<input id='aqfl_plugin_setting_llp_base' name='aqfl_plugin_options[quote_llp_base]' type='text' value='" . esc_attr( $options['quote_llp_base'] ) . "' />";
 }
 
-function aqfl_plugin_setting_perpayslip() {
+function aqfl_plugin_setting_payroll_matrix() {
     $options = get_option( 'aqfl_plugin_options' );
-    echo "<input id='aqfl_plugin_setting_perpayslip' name='aqfl_plugin_options[quote_perpayslip]' type='text' value='" . esc_attr( $options['quote_perpayslip'] ) . "' />";
-}
-function aqfl_plugin_setting_minpayroll() {
-    $options = get_option( 'aqfl_plugin_options' );
-    echo "<input id='aqfl_plugin_setting_minpayroll' name='aqfl_plugin_options[quote_minpayroll]' type='text' value='" . esc_attr( $options['quote_minpayroll'] ) . "' />";
+    echo "Must be valid JSON<br/><br /><code>[[<= employees, fee in gbp]]</code><br /><br />
+    <textarea id='aqfl_plugin_setting_payroll_matrix' name='aqfl_plugin_options[quote_payrollmatrix]' type='text'>".esc_attr( $options['quote_payrollmatrix'] )."</textarea>";
 }
 
 function aqfl_plugin_setting_vat() {
