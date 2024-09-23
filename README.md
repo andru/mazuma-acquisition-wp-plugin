@@ -9,6 +9,13 @@ These steps can be performed on a local development environment and uploaded as 
 3. Copy `api/.env.example` to `api/.env` and fill in the required environment variables
 4. Activate the plugin in the Wordpress admin and configure the settings
 
+## Updating the React app
+The React app - held in a separate repo -  is built using Vite.
+- Run `npm build` in the React app directory to build the app. 
+- Copy the build output - a `dist` directory - into the root of this plugin.
+- Update the CSS and JS filenames in `acquisition-flow.php` to correspond with the build output files in `dist/assets`.
+- Redeploy the plugin to the Wordpress server.
+
 ## Configuration
 Various configuration options are available in the plugin settings page, which can be found when activated under the headings Settings > Acquisition Flow
 
