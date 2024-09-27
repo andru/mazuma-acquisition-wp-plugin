@@ -91,28 +91,40 @@ if (!$token) {
 }
 
 
-// check if lead already exists
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, SF_URL."/services/data/v61.0/query/?q=SELECT+Id+FROM+Lead%20WHERE%20email='".trim($_POST["email"])."'%20AND%20LeadSource='QuoteFlow'");
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Authorization: Bearer ' . $token
-]);
-curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-$response = curl_exec($ch);
-$lastSFHeaderCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-$lead = json_decode($response, true);
 
-if (!$lead) {
-  http_response_code($lastSFHeaderCode);
-  die('Error querying lead');
+if ($_POST["SF_ID"] && $_POST["SF_ID"] !== "") {
+  // ensure lead exists
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, SF_URL."/services/data/v61.0/sobjects/Lead/".$_POST["SF_ID"]);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, [
+      'Authorization: Bearer ' . $token
+  ]);
+  curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  $response = curl_exec($ch);
+  $lastSFHeaderCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  curl_close($ch);
+  $lead = json_decode($response, true);
+  
+  if (!$lead) {
+    http_response_code($lastSFHeaderCode);
+    die('Error querying lead');
+  }
+
+  if ($lead && count($lead) > 0 && !$lead[0]['errorCode']) {
+    $id = $_POST["SF_ID"];
+    unset($_POST["SF_ID"]);
+  } else {
+    // don't set $id, so we create a new lead
+    unset($_POST["SF_ID"]);
+  }
 }
 
-if ($lead['totalSize']) {
-    //update existing lead
+
+// id defined, update lead
+if (isset($id)) {
   $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, SF_URL.$lead['records'][0]['attributes']['url']);
+  curl_setopt($ch, CURLOPT_URL, SF_URL."/services/data/v61.0/sobjects/Lead/".$id);
   curl_setopt($ch, CURLOPT_HTTPHEADER, [
       'Authorization: Bearer ' . $token,
       'Content-Type: application/json'
@@ -123,13 +135,18 @@ if ($lead['totalSize']) {
   curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 
   $response = curl_exec($ch);
-  $lastSFHeaderCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  $lastSFHeaderCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
   curl_close($ch);
-  http_response_code($lastSFHeaderCode);
-  echo $response;
+  // SF returns an empty body for successful PATCH requests
+  if ($lastSFHeaderCode === 204) {
+    echo json_encode(['id' => $id, 'success' => true]);
+  } else {
+    echo $lastSFHeaderCode;
+  }
   exit;
+
 } else {
-  // create lead
+  // create lead, return Object ID
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, SF_URL.'/services/data/v61.0/sobjects/Lead/');
   curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -142,13 +159,12 @@ if ($lead['totalSize']) {
   curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 
   $response = curl_exec($ch);
-  $lastSFHeaderCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  // response is json
+  $lastSFHeaderCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 
   curl_close($ch);
   http_response_code($lastSFHeaderCode);
   echo $response;
   exit;
-}
 
-header('HTTP/1.1 500 Internal Server Error');
-die('Application Error');
+}
