@@ -93,7 +93,7 @@ if (!$token) {
 
 // check if lead already exists
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, SF_URL."/services/data/v61.0/query/?q=SELECT+Id+FROM+Lead%20WHERE%20email='".trim($_POST["email"])."'");
+curl_setopt($ch, CURLOPT_URL, SF_URL."/services/data/v61.0/query/?q=SELECT+Id+FROM+Lead%20WHERE%20email='".trim($_POST["email"])."'%20AND%20LeadSource='QuoteFlow'");
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Authorization: Bearer ' . $token
 ]);
