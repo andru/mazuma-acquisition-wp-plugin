@@ -7,50 +7,59 @@ if ( ! defined( 'WPINC' ) ) {
 
 define( 'ACQUISITION_FLOW_VERSION', '1.0.0' );
 
-function activate_acquisition_flow() {
-}
-function deactivate_acquisition_flow() {
-}
-function acquisition_flow_enqueue_scripts() {
-	wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-B2ifV9CQ.js', array(), '1.3.1', true);
-	wp_enqueue_style( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'dist/assets/index-DAexjyvx.css');
+// Activation and deactivation hooks (empty for now)
+function activate_acquisition_flow() {}
+function deactivate_acquisition_flow() {}
 
+// Enqueue scripts and styles
+function acquisition_flow_enqueue_scripts() {
+    // Enqueue the custom JavaScript file (acquisition-flow.js)
+    wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'js/acquisition-flow.js', array(), '1.0.0', true );
+
+    // Enqueue your main JavaScript file and set it as dependent on 'acquisition-flow'
+    wp_enqueue_script( 'acquisition-flow-main', plugin_dir_url( __FILE__ ) . 'dist/assets/index-JbbHz58U.js', array('acquisition-flow'), '1.3.2', true );
+
+    // Enqueue the CSS file
+    wp_enqueue_style( 'acquisition-flow-style', plugin_dir_url( __FILE__ ) . 'dist/assets/index-DAexjyvx.css' );
+
+    // Localize dynamic data to pass it from PHP to JS
+    $options = get_option('aqfl_plugin_options');
+    wp_localize_script( 'acquisition-flow', 'acquisitionFlowData', array(
+        'COMPANIESHOUSE_API_URL' => '/app/plugins/acquisition-flow-plugin/api/companieshouse.php',
+        'SALESFORCE_API_URL' => '/app/plugins/acquisition-flow-plugin/api/salesforce.php',
+        'MAILCHIMP_API_URL' => '/app/plugins/acquisition-flow-plugin/api/mailchimp.php',
+        'CALENDLY_URL' => isset($options['bookcallurl']) ? $options['bookcallurl'] : '',
+        'WPAQFL_BASE_SOLE' => isset($options['quote_st_base']) ? $options['quote_st_base'] : '',
+        'WPAQFL_BASE_PARTNERSHIP' => isset($options['quote_pt_base']) ? $options['quote_pt_base'] : '',
+        'WPAQFL_BASE_LTD' => isset($options['quote_ltd_base']) ? $options['quote_ltd_base'] : '',
+        'WPAQFL_BASE_LLP' => isset($options['quote_llp_base']) ? $options['quote_llp_base'] : '',
+        'WPAQFL_PAYROLL_MATRIX' => isset($options['quote_payrollmatrix']) ? $options['quote_payrollmatrix'] : '',
+        'WPAQFL_VAT' => isset($options['quote_fees_vat']) ? $options['quote_fees_vat'] : '',
+        'WPAQFL_SETUP' => isset($options['quote_fees_setup']) ? $options['quote_fees_setup'] : '',
+    ));
 }
 add_action('wp_enqueue_scripts', 'acquisition_flow_enqueue_scripts');
 
 register_activation_hook( __FILE__, 'activate_acquisition_flow' );
 register_deactivation_hook( __FILE__, 'deactivate_acquisition_flow' );
 
+// Render the acquisition flow content (output to wp_footer)
 
-add_filter( 'the_content', 'render_acquisition_flow' );
-function render_acquisition_flow( $page_template )
-{
+add_action( 'wp_footer', 'render_acquisition_flow' );
+function render_acquisition_flow() {
     $options = get_option('aqfl_plugin_options');
     $page_name = $options['pagename'];
-    if ( isset($page_name) && $page_name!=='' && is_singular() && is_page( $options['pagename'] ) ) {
-        ?>
-        <script type="text/javascript">
-            var COMPANIESHOUSE_API_URL='/wp-content/plugins/acquisition-flow/api/companieshouse.php';
-            var SALESFORCE_API_URL='/wp-content/plugins/acquisition-flow/api/salesforce.php';
-            var MAILCHIMP_API_URL='/wp-content/plugins/acquisition-flow/api/mailchimp.php';
-            var CALENDLY_URL="<?php echo $options['bookcallurl'] ?>";
 
-            var WPAQFL_BASE_SOLE = "<?php echo $options['quote_st_base'] ?>";
-            var WPAQFL_BASE_PARTNERSHIP = "<?php echo $options['quote_pt_base'] ?>";
-            var WPAQFL_BASE_LTD = "<?php echo $options['quote_ltd_base'] ?>";
-            var WPAQFL_BASE_LLP = "<?php echo $options['quote_llp_base'] ?>";
-            var WPAQFL_PAYROLL_MATRIX = `<?php echo $options['quote_payrollmatrix'] ?>`;
-            var WPAQFL_VAT = "<?php echo $options['quote_fees_vat'] ?>";
-            var WPAQFL_SETUP = "<?php echo $options['quote_fees_setup'] ?>";
-        </script>
-        <div id="mazuma-flow-root"></div>
-        <?php
+    // Only show the flow on the specified page and hide it initially
+    if ( isset($page_name) && $page_name !== '' && is_singular() && is_page( $page_name ) ) {
+        echo '<style type="text/css">.breadcrumb, .flexibleblocks, .ctafooter{ display: none; }</style><div id="mazuma-flow-root" style="display:none;"></div>';
     }
 }
 
 
 function acquisition_flow_add_settings_page() {
-    add_options_page( 'Acquisition Flow', 'Acquisition Flow', 'manage_options', 'aqfl_plugin', 'acquisition_flow_render_plugin_settings_page' );
+    // add_options_page( 'Acquisition Flow', 'Acquisition Flow', 'manage_options', 'aqfl_plugin', 'acquisition_flow_render_plugin_settings_page' );
+    add_menu_page('Acquisition Flow', 'Acquisition Flow', 'manage_options', 'aqfl_plugin', 'acquisition_flow_render_plugin_settings_page', 'dashicons-admin-generic');
 }
 add_action( 'admin_menu', 'acquisition_flow_add_settings_page' );
 
