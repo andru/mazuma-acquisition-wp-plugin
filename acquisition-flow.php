@@ -5,25 +5,35 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'ACQUISITION_FLOW_VERSION', '1.0.0' );
+define( 'ACQUISITION_FLOW_VERSION', '1.3.4' );
 
-// Activation and deactivation hooks (empty for now)
-function activate_acquisition_flow() {}
-function deactivate_acquisition_flow() {}
 
 // Enqueue scripts and styles
 function acquisition_flow_enqueue_scripts() {
-    // Enqueue the custom JavaScript file (acquisition-flow.js)
-    wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'js/acquisition-flow.js', array(), '1.0.0', true );
-
-    // Enqueue your main JavaScript file and set it as dependent on 'acquisition-flow'
-    wp_enqueue_script( 'acquisition-flow-main', plugin_dir_url( __FILE__ ) . 'dist/assets/index-JbbHz58U.js', array('acquisition-flow'), '1.3.2', true );
-
-    // Enqueue the CSS file
-    wp_enqueue_style( 'acquisition-flow-style', plugin_dir_url( __FILE__ ) . 'dist/assets/index-DAexjyvx.css' );
-
-    // Localize dynamic data to pass it from PHP to JS
+    // get the page name from the acquisition flow options (this must be set in the plugin options page first)
     $options = get_option('aqfl_plugin_options');
+    $page_name = $options['pagename'];
+
+    // conditionally enqueue the javascript and css files for the acquisition flow
+    // only output on the page configured in the acquisition flow settings page
+    if ( isset($page_name) && $page_name !== '' && is_singular() && is_page($page_name) ) {
+        // specific javascript overrides to adjust the SpinDogs theme to work with the acquisition flow
+        wp_enqueue_script( 'acquisition-flow', plugin_dir_url( __FILE__ ) . 'js/acquisition-flow.js', array(), '1.0.0', true );
+
+        // the main acquisition flow distribution JS & CSS files; build output of the react app
+        wp_enqueue_script( 'acquisition-flow-main', plugin_dir_url( __FILE__ ) . 'dist/assets/index-JbbHz58U.js', array('acquisition-flow'), '1.3.4', true );
+        wp_enqueue_style( 'acquisition-flow-style', plugin_dir_url( __FILE__ ) . 'dist/assets/index-DAexjyvx.css' );
+
+    }
+}
+// register the above function
+add_action('wp_enqueue_scripts', 'acquisition_flow_enqueue_scripts');
+
+function render_acquisition_flow() {
+    $options = get_option('aqfl_plugin_options');
+    $page_name = $options['pagename'];
+
+    // Localize configuration data to retrieve in /js/acquisition-flow.js
     wp_localize_script( 'acquisition-flow', 'acquisitionFlowData', array(
         'COMPANIESHOUSE_API_URL' => '/app/plugins/acquisition-flow-plugin/api/companieshouse.php',
         'SALESFORCE_API_URL' => '/app/plugins/acquisition-flow-plugin/api/salesforce.php',
@@ -37,28 +47,21 @@ function acquisition_flow_enqueue_scripts() {
         'WPAQFL_VAT' => isset($options['quote_fees_vat']) ? $options['quote_fees_vat'] : '',
         'WPAQFL_SETUP' => isset($options['quote_fees_setup']) ? $options['quote_fees_setup'] : '',
     ));
-}
-add_action('wp_enqueue_scripts', 'acquisition_flow_enqueue_scripts');
-
-register_activation_hook( __FILE__, 'activate_acquisition_flow' );
-register_deactivation_hook( __FILE__, 'deactivate_acquisition_flow' );
-
-// Render the acquisition flow content (output to wp_footer)
-
-add_action( 'wp_footer', 'render_acquisition_flow' );
-function render_acquisition_flow() {
-    $options = get_option('aqfl_plugin_options');
-    $page_name = $options['pagename'];
 
     // Only show the flow on the specified page and hide it initially
     if ( isset($page_name) && $page_name !== '' && is_singular() && is_page( $page_name ) ) {
+        // css to hide theme elements which we have no programatic ability to remove without 
+        // modifying the theme code directly - these elements will later be removed by the enqueued script `js/acquisition-flow.js
         echo '<style type="text/css">.breadcrumb, .flexibleblocks, .ctafooter{ display: none; }</style><div id="mazuma-flow-root" style="display:none;"></div>';
     }
 }
+// Render the acquisition flow content (output to wp_footer)
+add_action( 'wp_footer', 'render_acquisition_flow' );
 
 
 function acquisition_flow_add_settings_page() {
-    // add_options_page( 'Acquisition Flow', 'Acquisition Flow', 'manage_options', 'aqfl_plugin', 'acquisition_flow_render_plugin_settings_page' );
+    // output the settings into it's own page in the admin, as the standard Settings menu is hidden by
+    // the spindogs app config to all but super-admins
     add_menu_page('Acquisition Flow', 'Acquisition Flow', 'manage_options', 'aqfl_plugin', 'acquisition_flow_render_plugin_settings_page', 'dashicons-admin-generic');
 }
 add_action( 'admin_menu', 'acquisition_flow_add_settings_page' );
